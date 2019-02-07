@@ -7,7 +7,7 @@ import func Darwin.C.stdlib.exit
 import Utility
 import Basic
 
-@available(OSX 10.14, *)
+@available(OSX 10.12, *)
 public final class Quit: NSObject {
 	// Instantiate logging handler
 	private let logHandle = OSLog(subsystem: "com.paulgalow.quit", category: "General")
@@ -196,7 +196,7 @@ public final class Quit: NSObject {
 	}
 }
 
-@available(OSX 10.14, *)
+@available(OSX 10.12, *)
 public extension Quit {
 	enum Error: Swift.Error {
 		case appNotFound(String)
@@ -207,7 +207,7 @@ public extension Quit {
 	}
 }
 
-@available(OSX 10.14, *)
+@available(OSX 10.12, *)
 public extension Quit {
 	// An enum indicating the execution status of run commands.
 	enum ExecutionStatus {

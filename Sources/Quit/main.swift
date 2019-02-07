@@ -1,7 +1,7 @@
 import QuitCore
 import Utility
 
-if #available(OSX 10.14, *) {
+if #available(OSX 10.12, *) {
 
 	let tool = Quit()
 

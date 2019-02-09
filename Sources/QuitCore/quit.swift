@@ -1,11 +1,12 @@
-import Foundation
-import os.log
 import class AppKit.NSWorkspace
 import class AppKit.NSRunningApplication
-import Dispatch
 import func Darwin.C.stdlib.exit
-import Utility
+import Dispatch
+import Foundation
+import os.log
+
 import Basic
+import Utility
 
 @available(OSX 10.12, *)
 public final class Quit: NSObject {
@@ -77,8 +78,10 @@ public final class Quit: NSObject {
 		}
 		
 		if let timeoutValue = result.get(timeout) {
+			os_log("Calling quitApp() with custom timeout value …", log: logHandle, type: .debug)
 			try quitApp(appName, timeout: timeoutValue)
 		} else {
+			os_log("Calling quitApp() …", log: logHandle, type: .debug)
 			try quitApp(appName)
 		}
 		
@@ -97,7 +100,8 @@ public final class Quit: NSObject {
 	
 	// Get app bundle ID from app name the user has passed in
 	public func getBundleIDFromAppName(_ name: String) throws -> NSRunningApplication? {
-
+		os_log("Entered getBundleIDFromAppName()", log: logHandle, type: .debug)
+		
 		let appsToQuit = runningApps.filter { $0.bundleURL?.lastPathComponent == "\(name).app" }
 
 		// Check our results
@@ -135,11 +139,13 @@ public final class Quit: NSObject {
 //	}
 	
 	public func countdown(_ timeout: Int) {
-		DispatchQueue.global().async {
+		os_log("Entered countdown()", log: logHandle, type: .debug)
+		
+		DispatchQueue.global(qos: .userInteractive).async {
 			do {
 				var counter = 1
 				while counter < timeout {
-					print("Waiting (\(counter)/\(timeout)) …")
+					os_log("Waiting (%{counter}d/%{timeout}d) …", log: self.logHandle, type: .default, counter, timeout)
 					Thread.sleep(forTimeInterval: 1.0)
 					counter += 1
 					}
@@ -154,7 +160,7 @@ public final class Quit: NSObject {
 	
 	// Gracefully quit app, prompting for saving open documents
 	public func quitApp(_ appName: String, timeout: Int = 60) throws {
-		os_log("Entered quitApp", log: logHandle, type: .info)
+		os_log("Entered quitApp()", log: logHandle, type: .debug)
 		
 		guard let appToQuit = try getBundleIDFromAppName(appName) else {
 			throw Error.unknownError
@@ -176,13 +182,18 @@ public final class Quit: NSObject {
 	
 	// Custom print function for colored output
 	public func printErr(_ err: String) {
+		os_log("Entered printErr()", log: logHandle, type: .debug)
+		
 		if let stdout = stdoutStream as? LocalFileOutputByteStream {
 			let tc = TerminalController(stream: stdout)
 			tc?.write(err + "\n", inColor: .red, bold: true)
 		}
 	}
 
+	// Implement observer function to observe NSRunningApplication.isTerminated
 	override public func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+		os_log("Entered observeValue()", log: logHandle, type: .debug)
+		
 		guard let app = object as? NSRunningApplication else {
 			os_log("Could not fetch object in observeValue()", log: logHandle, type: .error)
 			return
@@ -217,9 +228,15 @@ public extension Quit {
 
 	/// Exit the tool with the given execution status.
 	func exit(with status: ExecutionStatus) -> Never {
+		os_log("Entered exit()", log: logHandle, type: .debug)
+		
 		switch status {
-		case .success: Darwin.exit(0)
-		case .failure: Darwin.exit(1)
+		case .success:
+			os_log("Exiting 'quit' with status code 0 …", log: logHandle, type: .default)
+			Darwin.exit(0)
+		case .failure:
+			os_log("Exiting 'quit' with status code 1 …", log: logHandle, type: .error)
+			Darwin.exit(1)
 		}
 	}
 }

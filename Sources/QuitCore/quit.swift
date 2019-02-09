@@ -120,36 +120,22 @@ public final class Quit: NSObject {
 		return appsToQuit[0]
 	}
 
-// Alternative implementation using Timer
-//	public func countdown(_ timeout: Int) {
-//		var counter = 1
-//
-//		let timer: Timer?
-//
-//		if #available(OSX 10.12, *) {
-//			timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-//				while counter < timeout {
-//					print("Waiting (\(counter)/\(timeout)) …")
-//					counter += 1
-//				}
-//			}
-//		} else {
-//			// Fallback on earlier versions
-//		}
-//	}
-	
+	// Countdown timer for app to quit
 	public func countdown(_ timeout: Int) {
 		os_log("Entered countdown()", log: logHandle, type: .debug)
 		
-		DispatchQueue.global(qos: .userInteractive).async {
+		var counter = 1
+
+		// Run the following code every second
+		_ = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
 			do {
-				var counter = 1
-				while counter < timeout {
+				if counter <= timeout {
 					os_log("Waiting (%{counter}d/%{timeout}d) …", log: self.logHandle, type: .default, counter, timeout)
-					Thread.sleep(forTimeInterval: 1.0)
 					counter += 1
-					}
-				throw Error.timeout
+				} else {
+					timer.invalidate()
+					throw Error.timeout
+				}
 			} catch {
 				os_log("Timeout", log: self.logHandle, type: .error)
 				self.printErr("Timeout")
@@ -173,7 +159,6 @@ public final class Quit: NSObject {
 				os_log("Quitting '%{public}s' …", log: logHandle, type: .default, app.localizedName ?? "")
 				
 				countdown(timeout)
-//				timer?.invalidate()
 			}
 		}
 		// Daemonize application

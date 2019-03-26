@@ -14,5 +14,6 @@ clean:
 	@rm -f /usr/local/bin/quit
 
 compile:
-	@swift build -c release -Xswiftc -static-stdlib
+	# Swift 4.2: @swift build -c release -Xswiftc -static-stdlib
+	@swift build -c release --static-swift-stdlib
 	@cp -f .build/release/Quit /usr/local/bin/quit

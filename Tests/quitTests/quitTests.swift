@@ -1,6 +1,6 @@
 import XCTest
-import class Foundation.Bundle
 import QuitCore
+import class Foundation.Bundle
 import class AppKit.NSWorkspace
 import class AppKit.NSRunningApplication
 
@@ -33,7 +33,7 @@ final class quitTests: XCTestCase {
 //		let output = String(data: data, encoding: .utf8)
 
 		// Prepare our check
-		sleep(1)
+		Thread.sleep(forTimeInterval: 1.0)
 		let runningApps = workspace.runningApplications
 		let appsToQuit = runningApps.filter { $0.bundleURL?.lastPathComponent == "\(appName).app" }
 		
